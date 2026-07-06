@@ -1,25 +1,48 @@
-﻿# Caesar Cipher Encryption & Decryption
+﻿# Medication & Habit Reminder App
 
-A simple Python project that implements the Caesar Cipher technique for basic text encryption and decryption.
+## 📌 Project Overview
+A Flutter application that helps patients and users stay consistent with medication schedules and healthy habits through reliable, scheduled reminders, streak tracking, and a caregiver-view for monitoring adherence.
 
-## Features
-- Encrypts user input text using a shift-based Caesar Cipher logic
-- Decrypts the encrypted text back to its original form
-- Displays both encrypted and decrypted output
-- Handles uppercase, lowercase, and special characters
+**Real-world problem:** Patients often miss doses or healthy habits due to a lack of reliable reminders.
 
-## How to Run
-1. Make sure Python is installed
-2. Run the script:
-   \\\
-   python caesar_cipher.py
-   \\\
-3. Enter your text and shift value when prompted
+## 🛠️ Tech Stack
+- **Frontend:** Flutter
+- **Backend/Database:** _To be decided (Firebase / Supabase / Prisma + Neon)_
+- **Version Control:** Git & GitHub
 
-## Key Concepts
-- Encryption/Decryption logic
-- ASCII character manipulation
-- Basic data protection concepts
+## 👥 Team Members & Roles
 
-## Author
-Sardar Fahad Ali
+| Name | Role | GitHub |
+|------|------|--------|
+| Sardar Fahad Ali | Team Lead | [@sardarfahadali18-wq](https://github.com/sardarfahadali18-wq) |
+| Hammas | Member | [@HammasT1](https://github.com/HammasT1) |
+| Adil Ashfaq | Member | [@AdilAshfaq001](https://github.com/AdilAshfaq001) |
+| Dost Muhammad | Member | [@dostmuhammadpro8880](https://github.com/dostmuhammadpro8880) |
+| Member 5 | TBD | |
+
+## 🚀 Setup Instructions
+```bash
+git clone https://github.com/sardarfahadali18-wq/fellowship-project-1.git
+cd fellowship-project-1
+flutter pub get
+flutter run
+```
+
+## 🌿 Branching Strategy
+- `main` → stable, production-ready code
+- `dev` → integration branch
+- `feature/*` → individual features
+
+No direct pushes to `main`. All changes go through Pull Requests with at least one team review.
+
+## 📸 Screenshots / Demo
+_(Add screenshots or demo video link here once available)_
+
+## 📋 Project Status
+🚧 In Development — Project 1 of 4 (Fellowship Program 2026)
+
+## 🔒 Security Note
+All API keys and secrets are stored in environment variables (`.env`) and are never committed to this repository.
+
+## 📄 License
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
