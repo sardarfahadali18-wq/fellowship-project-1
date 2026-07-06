@@ -1,0 +1,10 @@
+﻿.env
+*.env
+.dart_tool/
+build/
+.pub-cache/
+android/.gradle
+ios/Pods/
+.idea/
+.vscode/
+.DS_Store
