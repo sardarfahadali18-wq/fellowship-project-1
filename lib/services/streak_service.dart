@@ -15,9 +15,11 @@ class StreakService {
   int _bestStreak = 0;
 
   final SharedPreferences _prefs;
+  final bool _prepopulateDefaults;
 
   // Private constructor for Singleton pattern.
-  StreakService._(this._prefs) {
+  StreakService._(this._prefs, {bool prepopulateDefaults = true})
+      : _prepopulateDefaults = prepopulateDefaults {
     _loadData();
   }
 
@@ -34,10 +36,10 @@ class StreakService {
   }
 
   /// Initializes the [StreakService] singleton.
-  static Future<StreakService> init() async {
+  static Future<StreakService> init({bool prepopulateDefaults = true}) async {
     if (_instance == null) {
       final prefs = await SharedPreferences.getInstance();
-      _instance = StreakService._(prefs);
+      _instance = StreakService._(prefs, prepopulateDefaults: prepopulateDefaults);
     }
     return _instance!;
   }
@@ -70,7 +72,22 @@ class StreakService {
         _completions = {};
         _bestStreak = 0;
       }
+    } else if (_prepopulateDefaults) {
+      _prepopulateDefaultStreak();
     }
+  }
+
+  /// Pre-populates a default 2-day streak for new installations.
+  void _prepopulateDefaultStreak() {
+    final today = DateTime.now();
+    final yesterdayKey = _formatDate(today.subtract(const Duration(days: 1)));
+    final twoDaysAgoKey = _formatDate(today.subtract(const Duration(days: 2)));
+
+    // Complete default reminders for the previous two days
+    _completions[twoDaysAgoKey] = {'1', '2'};
+    _completions[yesterdayKey] = {'1', '2'};
+    _bestStreak = 2;
+    _saveData();
   }
 
   /// Saves current streak data to local storage.

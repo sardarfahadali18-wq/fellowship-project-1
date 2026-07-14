@@ -11,7 +11,7 @@ void main() {
     setUp(() async {
       // Setup mock values for SharedPreferences before initialization.
       SharedPreferences.setMockInitialValues({});
-      streakService = await StreakService.init();
+      streakService = await StreakService.init(prepopulateDefaults: false);
       await streakService.clearAllData();
     });
 
