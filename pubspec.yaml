@@ -39,6 +39,7 @@ dependencies:
   timezone: ^0.9.4
   flutter_timezone: ^4.1.1
   firebase_core: ^4.12.1
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:
