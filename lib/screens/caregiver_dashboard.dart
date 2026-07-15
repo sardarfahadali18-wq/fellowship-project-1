@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import '../models/patient.dart';
 import '../services/notifications_service.dart';
+import 'home_screen.dart';
 
 class CaregiverDashboard extends StatelessWidget {
   const CaregiverDashboard({super.key});
@@ -34,6 +35,17 @@ class CaregiverDashboard extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Caregiver Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.checklist),
+            tooltip: 'My Reminders',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
