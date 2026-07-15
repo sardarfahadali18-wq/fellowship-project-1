@@ -8,3 +8,6 @@ ios/Pods/
 .idea/
 .vscode/
 .DS_Store
+
+android/app/google-services.json
+lib/firebase_options.dart
