@@ -101,7 +101,7 @@ class CaregiverDashboard extends StatelessWidget {
                               hour = 0;
                             }
 
-                            await NotificationService.scheduleDailyReminder(
+                            await NotificationService.scheduleMedicationReminder(
                               id: int.parse(patient.id),
                               patientName: patient.name,
                               medicineName: patient.medicineName,

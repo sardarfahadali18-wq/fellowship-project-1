@@ -1,39 +1,31 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+﻿import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
-  /// Initialize notification service
   static Future<void> init() async {
     tz.initializeTimeZones();
-
     final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
-
     tz.setLocalLocation(tz.getLocation(currentTimeZone));
 
     const AndroidInitializationSettings androidSettings =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
-
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     const InitializationSettings settings = InitializationSettings(
       android: androidSettings,
     );
 
-    // Fixed: explicit named parameter prefix 'settings:'
-    await _notificationsPlugin.initialize(settings: settings);
+    await _notificationsPlugin.initialize(settings);
 
     final androidImplementation = _notificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
-
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     await androidImplementation?.requestNotificationsPermission();
     await androidImplementation?.requestExactAlarmsPermission();
   }
 
-  /// Instant test notification
   static Future<void> showTestNotification() async {
     const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'medicine_reminders',
@@ -43,21 +35,21 @@ class NotificationService {
       priority: Priority.high,
       playSound: true,
     );
+    const NotificationDetails notificationDetails =
+        NotificationDetails(android: androidDetails);
 
-    // Fixed: added named parameter labels 'id:', 'title:', 'body:', 'notificationDetails:'
     await _notificationsPlugin.show(
-      id: 0,
-      title: '🔔 Test Notification',
-      body: 'Your notification system is working correctly!',
-      notificationDetails: const NotificationDetails(android: androidDetails),
+      0,
+      'Test Notification',
+      'This is a test notification',
+      notificationDetails,
     );
   }
 
-  /// Schedule a daily medication reminder
-  static Future<void> scheduleDailyReminder({
+  static Future<void> scheduleMedicationReminder({
     required int id,
-    required String patientName,
     required String medicineName,
+    required String patientName,
     required int targetHour,
     required int targetMinute,
   }) async {
@@ -69,6 +61,8 @@ class NotificationService {
       priority: Priority.high,
       playSound: true,
     );
+    const NotificationDetails notificationDetails =
+        NotificationDetails(android: androidDetails);
 
     final now = tz.TZDateTime.now(tz.local);
 
@@ -85,15 +79,18 @@ class NotificationService {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 
-    // Fixed: added named parameter labels 'id:', 'title:', 'body:', 'scheduledDate:', 'notificationDetails:'
     await _notificationsPlugin.zonedSchedule(
-      id: id,
-      title: '💊 Medication Reminder',
-      body: 'It is time for $patientName to take $medicineName.',
-      scheduledDate: scheduledDate,
-      notificationDetails: const NotificationDetails(android: androidDetails),
+      id,
+      'Medication Reminder',
+      'It is time for $patientName to take $medicineName.',
+      scheduledDate,
+      notificationDetails,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 }
+
+
