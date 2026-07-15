@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'services/streak_service.dart';
 
@@ -7,7 +7,6 @@ void main() async {
   await StreakService.init();
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

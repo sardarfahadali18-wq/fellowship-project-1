@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/reminder.dart';
+<<<<<<< HEAD
 import '../services/streak_service.dart';
 import 'add_edit_reminder_screen.dart';
 
 
+=======
+import 'add_edit_reminder_screen.dart';
+
+>>>>>>> main
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -55,7 +60,10 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Reminders'),
         backgroundColor: Theme.of(context).colorScheme.primary,
+<<<<<<< HEAD
         foregroundColor: Colors.white,
+=======
+>>>>>>> main
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -63,19 +71,26 @@ class _HomeScreenState extends State<HomeScreen> {
           itemCount: reminders.length,
           itemBuilder: (ctx, i) {
             final r = reminders[i];
+<<<<<<< HEAD
             final isCompleted = StreakService.instance.isReminderCompleted(r.id);
 
+=======
+>>>>>>> main
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 8.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+<<<<<<< HEAD
               elevation: isCompleted ? 1 : 2,
+=======
+>>>>>>> main
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,
                 ),
+<<<<<<< HEAD
                 leading: IconButton(
                   icon: Icon(
                     isCompleted
@@ -105,6 +120,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   r.frequency,
                   style: TextStyle(
                     color: isCompleted ? Colors.grey[400] : Colors.grey[600],
+=======
+                title: Text(
+                  r.title,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(r.frequency),
+                leading: CircleAvatar(
+                  backgroundColor: Colors.deepPurple[100],
+                  child: const Icon(
+                    Icons.access_time,
+                    color: Colors.deepPurple,
+>>>>>>> main
                   ),
                 ),
                 trailing: IconButton(
@@ -123,4 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
