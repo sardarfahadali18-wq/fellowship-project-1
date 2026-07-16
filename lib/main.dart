@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'screens/caregiver_dashboard.dart';
 import 'services/notifications_service.dart';
 import 'services/streak_service.dart';

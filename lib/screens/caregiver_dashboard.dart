@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../models/patient.dart';
 import '../services/notifications_service.dart';
 import 'home_screen.dart';
