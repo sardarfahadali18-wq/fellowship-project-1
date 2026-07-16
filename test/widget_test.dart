@@ -1,12 +1,10 @@
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fellowship_project_1/main.dart';
 import 'package:fellowship_project_1/services/streak_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
   testWidgets('App loads and displays reminders smoke test', (WidgetTester tester) async {
     // Mock SharedPreferences before app startup
     SharedPreferences.setMockInitialValues({});
@@ -23,4 +21,3 @@ void main() {
     expect(find.text('Morning Walk - 7:00 AM'), findsOneWidget);
   });
 }
-
