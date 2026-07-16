@@ -1,6 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import '../models/reminder.dart';
 import '../services/streak_service.dart';
+import '../widgets/streak_badge.dart';
+import '../widgets/streak_stats_card.dart';
 import 'add_edit_reminder_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -48,103 +50,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget _buildStreakBanner() {
-    final streak = StreakService.instance.getStreakCount();
-    final bestStreak = StreakService.instance.getBestStreakCount();
-    final totalCompleted = StreakService.instance.getTotalCompletedDays();
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.orange.shade700, Colors.red.shade600],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.red.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              shape: BoxShape.circle,
-            ),
-            child: const Text(
-              '🔥',
-              style: TextStyle(fontSize: 28),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  streak == 0 ? 'Start Your Streak!' : '$streak-Day Streak!',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  streak == 0
-                      ? 'Complete a reminder today to light the fire.'
-                      : 'Great job! Keep the fire burning.',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.emoji_events,
-                      color: Colors.yellow[300],
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Best: $bestStreak days',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Icon(
-                      Icons.check_circle_outline,
-                      color: Colors.green[100],
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Total Days: $totalCompleted',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+  void _showStreakStats() {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => const Padding(
+        padding: EdgeInsets.fromLTRB(12, 0, 12, 24),
+        child: StreakStatsCard(),
       ),
     );
   }
@@ -160,15 +72,17 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildStreakBanner(),
-            const SizedBox(height: 12),
+            StreakBadge(onTap: _showStreakStats),
+            const SizedBox(height: 8),
             Expanded(
               child: ListView.builder(
                 itemCount: reminders.length,
                 itemBuilder: (ctx, i) {
                   final r = reminders[i];
-                  final isCompleted = StreakService.instance.isReminderCompleted(r.id);
+                  final isCompleted =
+                      StreakService.instance.isReminderCompleted(r.id);
 
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -191,7 +105,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         onPressed: () async {
                           if (isCompleted) {
-                            await StreakService.instance.uncompleteReminder(r.id);
+                            await StreakService.instance
+                                .uncompleteReminder(r.id);
                           } else {
                             await StreakService.instance.completeReminder(r.id);
                           }
@@ -202,14 +117,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         r.title,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          decoration: isCompleted ? TextDecoration.lineThrough : null,
+                          decoration:
+                              isCompleted ? TextDecoration.lineThrough : null,
                           color: isCompleted ? Colors.grey : Colors.black87,
                         ),
                       ),
                       subtitle: Text(
                         r.frequency,
                         style: TextStyle(
-                          color: isCompleted ? Colors.grey[400] : Colors.grey[600],
+                          color:
+                              isCompleted ? Colors.grey[400] : Colors.grey[600],
                         ),
                       ),
                       trailing: IconButton(
