@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/patient.dart';
 import '../services/notifications_service.dart';
 import 'home_screen.dart';
+import 'invite_screen.dart';
+import 'link_caregiver_screen.dart';
 
 class CaregiverDashboard extends StatelessWidget {
   const CaregiverDashboard({super.key});
@@ -44,6 +46,31 @@ class CaregiverDashboard extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const HomeScreen()),
               );
             },
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Link Accounts',
+            icon: const Icon(Icons.link),
+            onSelected: (value) {
+              if (value == 'invite') {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const InviteScreen()),
+                );
+              } else if (value == 'link') {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const LinkCaregiverScreen()),
+                );
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'invite',
+                child: Text('Invite a Caregiver'),
+              ),
+              const PopupMenuItem(
+                value: 'link',
+                child: Text('Link to a Patient'),
+              ),
+            ],
           ),
         ],
       ),
@@ -96,7 +123,6 @@ class CaregiverDashboard extends StatelessWidget {
                             int hour;
                             int minute;
 
-                            // Convert "9:00 AM" into 24-hour format
                             final parts = patient.reminderTime.split(' ');
                             final time = parts[0].split(':');
 
