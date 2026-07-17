@@ -12,6 +12,8 @@ class CaregiverLinkService {
   }
 
   /// Called by the patient to generate a fresh invite code.
+  /// Also marks the current user's own profile as role: patient,
+  /// so RoleGate routes them to their own HomeScreen right away.
   Future<String> generateInviteCode() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) throw Exception('Not signed in');
@@ -24,6 +26,10 @@ class CaregiverLinkService {
       'createdAt': FieldValue.serverTimestamp(),
       'used': false,
     });
+
+    await _db.collection('users').doc(user.uid).set({
+      'role': 'patient',
+    }, SetOptions(merge: true));
 
     return code;
   }
