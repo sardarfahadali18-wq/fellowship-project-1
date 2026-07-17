@@ -2,21 +2,25 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // users/{uid} — each user can only read/write their own profile doc.
-    // Linked party (caregiver <-> patient) can read each other's basic doc
-    // if they're referenced via linkedPatientId / linkedCaregiverId.
+    // users/{uid} — each user can write their own profile doc freely.
+    // A user may ALSO write someone else's doc, but only to claim
+    // themselves as that doc's linkedCaregiverId (needed for the
+    // invite-redeem flow, where the caregiver updates the patient's doc).
     match /users/{userId} {
       allow read: if request.auth != null &&
         (request.auth.uid == userId ||
          resource.data.linkedCaregiverId == request.auth.uid ||
          resource.data.linkedPatientId == request.auth.uid);
-      allow write: if request.auth != null && request.auth.uid == userId;
+
+      allow write: if request.auth != null &&
+        (request.auth.uid == userId ||
+         request.resource.data.linkedCaregiverId == request.auth.uid);
     }
 
     // invites/{code} — only the creating patient can create their own invite.
     // Any signed-in user can read/redeem an invite by code (needed to look
-    // up + claim it), but only fields relevant to redemption can be updated,
-    // and only once (enforced by checking 'used' was false before).
+    // up + claim it), but redemption only flips 'used' from false -> true
+    // once, and only the redeemer can set themselves as caregiverId.
     match /invites/{code} {
       allow create: if request.auth != null &&
         request.resource.data.patientId == request.auth.uid &&
