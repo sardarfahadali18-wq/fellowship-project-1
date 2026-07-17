@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
-import 'screens/caregiver_dashboard.dart';
 import 'screens/login_screen.dart';
+import 'screens/role_gate.dart';
 import 'services/notifications_service.dart';
 import 'services/streak_service.dart';
 
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
             return const Scaffold(body: Center(child: CircularProgressIndicator()));
           }
           if (snapshot.hasData) {
-            return const CaregiverDashboard();
+            return const RoleGate();
           }
           return const LoginScreen();
         },

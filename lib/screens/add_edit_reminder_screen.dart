@@ -3,7 +3,7 @@ import '../models/reminder.dart';
 
 class AddEditReminderScreen extends StatefulWidget {
   final Reminder? reminder;
-  const AddEditReminderScreen({Key? key, this.reminder}) : super(key: key);
+  const AddEditReminderScreen({super.key, this.reminder});
 
   @override
   State<AddEditReminderScreen> createState() => _AddEditReminderScreenState();
