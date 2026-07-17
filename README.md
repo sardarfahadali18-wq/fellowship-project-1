@@ -17,7 +17,7 @@ A Flutter application that helps patients and users stay consistent with medicat
 | Sardar Fahad Ali | Team Lead | [@sardarfahadali18-wq](https://github.com/sardarfahadali18-wq) |
 | Hammas | Member | [@HammasT1](https://github.com/HammasT1) |
 | Adil Ashfaq | Member | [@AdilAshfaq001](https://github.com/AdilAshfaq001) |
-| Dost Muhammad | Member | [@dostmuhammadpro8880](https://github.com/dostmuhammadpro8880) |
+| Faizan | Member | [@fazy777](https://github.com/fazy777) |
 | Member 5 | TBD | |
 
 ## 🚀 Setup Instructions

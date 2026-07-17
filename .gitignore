@@ -1,4 +1,4 @@
-﻿.env
+.env
 *.env
 .dart_tool/
 build/
@@ -8,9 +8,8 @@ ios/Pods/
 .idea/
 .vscode/
 .DS_Store
-
 android/app/google-services.json
-firebase.json
 lib/firebase_options.dart
+firebase.json
 .flutter-plugins
 .flutter-plugins-dependencies
