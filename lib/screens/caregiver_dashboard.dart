@@ -1,10 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/patient.dart';
 import '../services/notifications_service.dart';
 import 'home_screen.dart';
+import 'invite_screen.dart';
+import 'link_caregiver_screen.dart';
 
 class CaregiverDashboard extends StatelessWidget {
   const CaregiverDashboard({super.key});
+
+  Future<void> _signOut(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Sign Out'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await FirebaseAuth.instance.signOut();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +72,40 @@ class CaregiverDashboard extends StatelessWidget {
               );
             },
           ),
+          PopupMenuButton<String>(
+            tooltip: 'Link Accounts',
+            icon: const Icon(Icons.link),
+            onSelected: (value) {
+              if (value == 'invite') {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const InviteScreen()),
+                );
+              } else if (value == 'link') {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const LinkCaregiverScreen()),
+                );
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'invite',
+                child: Text('Invite a Caregiver'),
+              ),
+              const PopupMenuItem(
+                value: 'link',
+                child: Text('Link to a Patient'),
+              ),
+            ],
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sign Out',
+            onPressed: () => _signOut(context),
+          ),
         ],
       ),
       body: Column(
         children: [
-          // Test Notification Button
           Padding(
             padding: const EdgeInsets.all(12),
             child: SizedBox(
@@ -63,7 +119,6 @@ class CaregiverDashboard extends StatelessWidget {
               ),
             ),
           ),
-
           Expanded(
             child: ListView.builder(
               itemCount: patients.length,
@@ -90,13 +145,11 @@ class CaregiverDashboard extends StatelessWidget {
                           '${patient.medicineName} - ${patient.reminderTime}',
                         ),
                         const SizedBox(height: 8),
-
                         ElevatedButton.icon(
                           onPressed: () async {
                             int hour;
                             int minute;
 
-                            // Convert "9:00 AM" into 24-hour format
                             final parts = patient.reminderTime.split(' ');
                             final time = parts[0].split(':');
 
