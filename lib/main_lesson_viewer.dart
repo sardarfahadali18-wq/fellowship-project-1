@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'data/sample_data.dart';
-import 'screens/lesson_list_screen.dart';
+import 'package:fellowship_project_1/data/sample_data.dart';
+import 'package:fellowship_project_1/screens/lesson_list_screen.dart';
 
 /// Standalone test entry point for the offline lesson viewer.
 /// Run with: flutter run -t lib/main_lesson_viewer.dart
@@ -31,3 +31,5 @@ class LessonViewerTestApp extends StatelessWidget {
     );
   }
 }
+
+
