@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../models/patient.dart';
 
 class CaregiverDashboard extends StatelessWidget {
@@ -31,9 +31,7 @@ class CaregiverDashboard extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Caregiver Dashboard'),
-      ),
+      appBar: AppBar(title: const Text('Caregiver Dashboard')),
       body: ListView.builder(
         itemCount: patients.length,
         itemBuilder: (context, index) {
@@ -46,7 +44,9 @@ class CaregiverDashboard extends StatelessWidget {
                 color: patient.medicineTaken ? Colors.green : Colors.red,
               ),
               title: Text(patient.name),
-              subtitle: Text(patient.medicineName + ' - ' + patient.reminderTime),
+              subtitle: Text(
+                patient.medicineName + ' - ' + patient.reminderTime,
+              ),
               trailing: Text(
                 patient.medicineTaken ? 'Taken' : 'Missed',
                 style: TextStyle(
