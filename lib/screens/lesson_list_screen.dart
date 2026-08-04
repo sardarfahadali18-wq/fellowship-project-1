@@ -1,4 +1,4 @@
-ï»¿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:isar_community/isar.dart';
 
 import '../data/isar_service.dart';
@@ -73,12 +73,19 @@ class _LessonListScreenState extends State<LessonListScreen> {
                   ),
                   title: Text(pack.title),
                   subtitle: Text(
-                    '${pack.subject} â€¢ ${lessons.length} lessons â€¢ '
+                    '${pack.subject} • ${lessons.length} lessons • '
                     '${pack.isDownloaded ? "Available offline" : "Not downloaded"}',
                   ),
                   children: lessons.map((lesson) {
                     return ListTile(
-                      leading: CircleAvatar(child: Text('${lesson.order}')),
+                      leading: CircleAvatar(
+                        backgroundColor: lesson.isCompleted
+                            ? Colors.green
+                            : Theme.of(context).colorScheme.primaryContainer,
+                        child: lesson.isCompleted
+                            ? const Icon(Icons.check, color: Colors.white, size: 18)
+                            : Text('${lesson.order}'),
+                      ),
                       title: Text(lesson.title),
                       trailing: lesson.quizId != null
                         ? const Icon(Icons.quiz, size: 18)
@@ -109,4 +116,5 @@ class _PackWithLessons {
 
   _PackWithLessons({required this.pack, required this.lessons});
 }
+
 

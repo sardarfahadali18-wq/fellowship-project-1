@@ -27,10 +27,15 @@ const LessonSchema = CollectionSchema(
       name: r'contentMarkdown',
       type: IsarType.string,
     ),
-    r'order': PropertySchema(id: 2, name: r'order', type: IsarType.long),
-    r'packId': PropertySchema(id: 3, name: r'packId', type: IsarType.long),
-    r'quizId': PropertySchema(id: 4, name: r'quizId', type: IsarType.long),
-    r'title': PropertySchema(id: 5, name: r'title', type: IsarType.string),
+    r'isCompleted': PropertySchema(
+      id: 2,
+      name: r'isCompleted',
+      type: IsarType.bool,
+    ),
+    r'order': PropertySchema(id: 3, name: r'order', type: IsarType.long),
+    r'packId': PropertySchema(id: 4, name: r'packId', type: IsarType.long),
+    r'quizId': PropertySchema(id: 5, name: r'quizId', type: IsarType.long),
+    r'title': PropertySchema(id: 6, name: r'title', type: IsarType.string),
   },
 
   estimateSize: _lessonEstimateSize,
@@ -88,10 +93,11 @@ void _lessonSerialize(
 ) {
   writer.writeStringList(offsets[0], object.assetPaths);
   writer.writeString(offsets[1], object.contentMarkdown);
-  writer.writeLong(offsets[2], object.order);
-  writer.writeLong(offsets[3], object.packId);
-  writer.writeLong(offsets[4], object.quizId);
-  writer.writeString(offsets[5], object.title);
+  writer.writeBool(offsets[2], object.isCompleted);
+  writer.writeLong(offsets[3], object.order);
+  writer.writeLong(offsets[4], object.packId);
+  writer.writeLong(offsets[5], object.quizId);
+  writer.writeString(offsets[6], object.title);
 }
 
 Lesson _lessonDeserialize(
@@ -104,10 +110,11 @@ Lesson _lessonDeserialize(
   object.assetPaths = reader.readStringList(offsets[0]) ?? [];
   object.contentMarkdown = reader.readString(offsets[1]);
   object.id = id;
-  object.order = reader.readLong(offsets[2]);
-  object.packId = reader.readLong(offsets[3]);
-  object.quizId = reader.readLongOrNull(offsets[4]);
-  object.title = reader.readString(offsets[5]);
+  object.isCompleted = reader.readBool(offsets[2]);
+  object.order = reader.readLong(offsets[3]);
+  object.packId = reader.readLong(offsets[4]);
+  object.quizId = reader.readLongOrNull(offsets[5]);
+  object.title = reader.readString(offsets[6]);
   return object;
 }
 
@@ -123,12 +130,14 @@ P _lessonDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 3:
       return (reader.readLong(offset)) as P;
     case 4:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 5:
+      return (reader.readLongOrNull(offset)) as P;
+    case 6:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -740,6 +749,16 @@ extension LessonQueryFilter on QueryBuilder<Lesson, Lesson, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Lesson, Lesson, QAfterFilterCondition> isCompletedEqualTo(
+    bool value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'isCompleted', value: value),
+      );
+    });
+  }
+
   QueryBuilder<Lesson, Lesson, QAfterFilterCondition> orderEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1093,6 +1112,18 @@ extension LessonQuerySortBy on QueryBuilder<Lesson, Lesson, QSortBy> {
     });
   }
 
+  QueryBuilder<Lesson, Lesson, QAfterSortBy> sortByIsCompleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompleted', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Lesson, Lesson, QAfterSortBy> sortByIsCompletedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompleted', Sort.desc);
+    });
+  }
+
   QueryBuilder<Lesson, Lesson, QAfterSortBy> sortByOrder() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'order', Sort.asc);
@@ -1167,6 +1198,18 @@ extension LessonQuerySortThenBy on QueryBuilder<Lesson, Lesson, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Lesson, Lesson, QAfterSortBy> thenByIsCompleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompleted', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Lesson, Lesson, QAfterSortBy> thenByIsCompletedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompleted', Sort.desc);
+    });
+  }
+
   QueryBuilder<Lesson, Lesson, QAfterSortBy> thenByOrder() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'order', Sort.asc);
@@ -1234,6 +1277,12 @@ extension LessonQueryWhereDistinct on QueryBuilder<Lesson, Lesson, QDistinct> {
     });
   }
 
+  QueryBuilder<Lesson, Lesson, QDistinct> distinctByIsCompleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isCompleted');
+    });
+  }
+
   QueryBuilder<Lesson, Lesson, QDistinct> distinctByOrder() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'order');
@@ -1277,6 +1326,12 @@ extension LessonQueryProperty on QueryBuilder<Lesson, Lesson, QQueryProperty> {
   QueryBuilder<Lesson, String, QQueryOperations> contentMarkdownProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'contentMarkdown');
+    });
+  }
+
+  QueryBuilder<Lesson, bool, QQueryOperations> isCompletedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isCompleted');
     });
   }
 

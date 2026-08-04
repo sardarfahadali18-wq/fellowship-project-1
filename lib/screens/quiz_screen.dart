@@ -1,33 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
-
-// Model structure representation for Quiz Questions
-class QuizQuestion {
-  final String id;
-  final String title;
-  final String type; // 'mcq', 'truefalse', 'fillblank'
-  final List<String>? options;
-  final String correctAnswer;
-
-  QuizQuestion({
-    required this.id,
-    required this.title,
-    required this.type,
-    this.options,
-    required this.correctAnswer,
-  });
-}
+import '../models/quiz_question.dart';
+import '../models/quiz_result.dart';
+import '../services/quiz_grader_service.dart';
+import '../services/quiz_storage_service.dart';
+import '../services/progress_tracking_service.dart';
+import '../services/sync_outbox_service.dart';
+import 'quiz_result_screen.dart';
 
 class QuizScreen extends StatefulWidget {
   final String lessonId;
+  final String quizId;
+  final String quizTitle;
   final List<QuizQuestion> questions;
-  final Isar isar; // Passed Isar database instance
+  final int totalLessonQuizzes;
 
   const QuizScreen({
     Key? key,
     required this.lessonId,
+    required this.quizId,
+    this.quizTitle = 'Lesson Quiz',
     required this.questions,
-    required this.isar,
+    this.totalLessonQuizzes = 1,
   }) : super(key: key);
 
   @override
@@ -36,21 +29,20 @@ class QuizScreen extends StatefulWidget {
 
 class _QuizScreenState extends State<QuizScreen> {
   int _currentIndex = 0;
-  final Map<int, String> _userAnswers = {};
-  final TextEditingController _fillBlankController = TextEditingController();
-
-  bool _isSubmitted = false;
-  int _score = 0;
+  final Map<String, dynamic> _userAnswers = {};
+  final TextEditingController _textController = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
-    _fillBlankController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
-  void _onAnswerSelected(String answer) {
+  void _onAnswerSelected(dynamic value) {
+    final q = widget.questions[_currentIndex];
     setState(() {
-      _userAnswers[_currentIndex] = answer;
+      _userAnswers[q.id] = value;
     });
   }
 
@@ -58,7 +50,7 @@ class _QuizScreenState extends State<QuizScreen> {
     if (_currentIndex < widget.questions.length - 1) {
       setState(() {
         _currentIndex++;
-        _fillBlankController.text = _userAnswers[_currentIndex] ?? '';
+        _syncTextField();
       });
     }
   }
@@ -67,119 +59,125 @@ class _QuizScreenState extends State<QuizScreen> {
     if (_currentIndex > 0) {
       setState(() {
         _currentIndex--;
-        _fillBlankController.text = _userAnswers[_currentIndex] ?? '';
+        _syncTextField();
       });
     }
   }
 
-  // Calculate score locally and save to Isar DB
-  Future<void> _submitQuiz() async {
-    int totalScore = 0;
-
-    for (int i = 0; i < widget.questions.length; i++) {
-      String? userAnswer = _userAnswers[i]?.trim().toLowerCase();
-      String correctAnswer = widget.questions[i].correctAnswer.trim().toLowerCase();
-
-      if (userAnswer != null && userAnswer == correctAnswer) {
-        totalScore++;
-      }
+  void _syncTextField() {
+    final q = widget.questions[_currentIndex];
+    if (q.type == QuestionType.fillInBlank) {
+      _textController.text = _userAnswers[q.id]?.toString() ?? '';
     }
-
-    setState(() {
-      _score = totalScore;
-      _isSubmitted = true;
-    });
-
-    // Save Result to Isar DB
-    await _saveResultToIsar(totalScore, widget.questions.length);
   }
 
-  Future<void> _saveResultToIsar(int score, int total) async {
-    final timestamp = DateTime.now();
-    
-    // Example Isar write transaction
-    // Ensure you have a QuizResult collection defined in your Isar models
-    /*
-    await widget.isar.writeTxn(() async {
-      await widget.isar.quizResults.put(
-        QuizResult()
-          ..lessonId = widget.lessonId
-          ..score = score
-          ..totalQuestions = total
-          ..completedAt = timestamp,
-      );
+  Future<void> _submitQuiz() async {
+    if (_isSubmitting) return;
+    setState(() {
+      _isSubmitting = true;
     });
-    */
-    print("Saved Quiz Result to Isar: Lesson ${widget.lessonId}, Score: $score/$total at $timestamp");
+
+    try {
+      final currentAttempt = await QuizStorageService.getAttemptCount(
+        widget.lessonId,
+        widget.quizId,
+      );
+      final nextAttempt = currentAttempt + 1;
+
+      // 1. Grade quiz
+      final QuizResult result = QuizGraderService.gradeQuiz(
+        lessonId: widget.lessonId,
+        quizId: widget.quizId,
+        questions: widget.questions,
+        userAnswers: _userAnswers,
+        attemptNumber: nextAttempt,
+      );
+
+      // 2. Save result locally
+      await QuizStorageService.saveResult(result);
+
+      // 3. Connect to progress tracking
+      await ProgressTrackingService.updateProgressForQuizCompleted(
+        lessonId: widget.lessonId,
+        quizId: widget.quizId,
+        totalQuizzesInLesson: widget.totalLessonQuizzes,
+      );
+
+      // 4. Offline sync outbox entry
+      await SyncOutboxService.enqueueQuizResult(result);
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => QuizResultScreen(
+            result: result,
+            onRetake: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => QuizScreen(
+                    lessonId: widget.lessonId,
+                    quizId: widget.quizId,
+                    quizTitle: widget.quizTitle,
+                    questions: widget.questions,
+                    totalLessonQuizzes: widget.totalLessonQuizzes,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error completing quiz: $e')),
+        );
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.questions.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Quiz')),
-        body: const Center(child: Text('No quiz questions available for this lesson.')),
+        appBar: AppBar(title: Text(widget.quizTitle)),
+        body: const Center(child: Text('No questions available in this quiz.')),
       );
     }
 
-    if (_isSubmitted) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Quiz Result')),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.emoji_events, size: 80, color: Colors.amber),
-                const SizedBox(height: 16),
-                const Text(
-                  'Quiz Completed!',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Your Score: $_score / ${widget.questions.length}',
-                  style: const TextStyle(fontSize: 20),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Back to Lesson'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    final currentQuestion = widget.questions[_currentIndex];
+    final QuizQuestion q = widget.questions[_currentIndex];
+    final double progress = (_currentIndex + 1) / widget.questions.length;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Quiz - Question ${_currentIndex + 1}/${widget.questions.length}'),
+        title: Text(widget.quizTitle),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4.0),
+          child: LinearProgressIndicator(value: progress),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Question Title
             Text(
-              currentQuestion.title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'Question ${_currentIndex + 1} of ${widget.questions.length}',
+              style: Theme.of(context).textTheme.bodySmall,
             ),
-            const SizedBox(height: 20),
-
-            // Dynamic Widget Rendering based on Question Type
-            Expanded(
-              child: SingleChildScrollView(
-                child: _buildQuestionInput(currentQuestion),
-              ),
+            const SizedBox(height: 8),
+            Text(
+              q.questionText,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-
-            // Navigation Controls
+            const SizedBox(height: 24),
+            Expanded(child: _buildQuestionInput(q)),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -190,7 +188,6 @@ class _QuizScreenState extends State<QuizScreen> {
                   )
                 else
                   const SizedBox.shrink(),
-
                 if (_currentIndex < widget.questions.length - 1)
                   ElevatedButton(
                     onPressed: _nextQuestion,
@@ -198,9 +195,14 @@ class _QuizScreenState extends State<QuizScreen> {
                   )
                 else
                   ElevatedButton(
-                    onPressed: _submitQuiz,
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                    child: const Text('Submit Quiz', style: TextStyle(color: Colors.white)),
+                    onPressed: _isSubmitting ? null : _submitQuiz,
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Submit Quiz'),
                   ),
               ],
             ),
@@ -210,55 +212,55 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 
-  // Dynamic UI builder according to question type
-  Widget _buildQuestionInput(QuizQuestion question) {
-    switch (question.type.toLowerCase()) {
-      case 'mcq':
+  Widget _buildQuestionInput(QuizQuestion q) {
+    switch (q.type) {
+      case QuestionType.mcq:
+        return ListView.builder(
+          itemCount: q.options.length,
+          itemBuilder: (context, idx) {
+            final opt = q.options[idx];
+            final selected = _userAnswers[q.id] == opt;
+            return Card(
+              color: selected ? Colors.blue.shade50 : null,
+              child: RadioListTile<String>(
+                title: Text(opt),
+                value: opt,
+                groupValue: _userAnswers[q.id]?.toString(),
+                onChanged: _onAnswerSelected,
+              ),
+            );
+          },
+        );
+
+      case QuestionType.trueFalse:
         return Column(
-          children: (question.options ?? []).map((option) {
-            return RadioListTile<String>(
-              title: Text(option),
-              value: option,
-              groupValue: _userAnswers[_currentIndex],
-              onChanged: (val) {
-                if (val != null) _onAnswerSelected(val);
-              },
+          children: ['True', 'False'].map((opt) {
+            final selected =
+                _userAnswers[q.id]?.toString().toLowerCase() == opt.toLowerCase();
+            return Card(
+              color: selected ? Colors.blue.shade50 : null,
+              child: RadioListTile<String>(
+                title: Text(opt),
+                value: opt,
+                groupValue: _userAnswers[q.id]?.toString(),
+                onChanged: _onAnswerSelected,
+              ),
             );
           }).toList(),
         );
 
-      case 'truefalse':
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      case QuestionType.fillInBlank:
+        return Column(
           children: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _userAnswers[_currentIndex] == 'True' ? Colors.blue : Colors.grey[300],
-                foregroundColor: _userAnswers[_currentIndex] == 'True' ? Colors.white : Colors.black,
+            TextField(
+              controller: _textController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Type your answer here...',
               ),
-              onPressed: () => _onAnswerSelected('True'),
-              child: const Text('True'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _userAnswers[_currentIndex] == 'False' ? Colors.blue : Colors.grey[300],
-                foregroundColor: _userAnswers[_currentIndex] == 'False' ? Colors.white : Colors.black,
-              ),
-              onPressed: () => _onAnswerSelected('False'),
-              child: const Text('False'),
+              onChanged: (val) => _onAnswerSelected(val),
             ),
           ],
-        );
-
-      case 'fillblank':
-      default:
-        return TextField(
-          controller: _fillBlankController,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            hintText: 'Type your answer here...',
-          ),
-          onChanged: (val) => _onAnswerSelected(val),
         );
     }
   }
