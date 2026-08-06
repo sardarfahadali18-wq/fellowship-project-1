@@ -50,7 +50,6 @@ dependencies:
   connectivity_plus: ^7.3.1
 
   # Sync engine (Hamza) — outbox pattern, connectivity, background sync
-  connectivity_plus: ^6.1.0
   workmanager: ^0.5.2
   http: ^1.2.2
   uuid: ^4.5.1
