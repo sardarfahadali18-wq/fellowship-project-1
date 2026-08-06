@@ -1,4 +1,7 @@
+import 'package:isar_community/isar.dart';
 import 'package:fellowship_project_1/data/isar_service.dart';
+import 'package:fellowship_project_1/data/models/lesson.dart';
+import 'package:fellowship_project_1/data/models/quiz.dart';
 
 void main() async {
   final isar = await IsarService.getInstance();
@@ -9,3 +12,5 @@ void main() async {
   final quizzes = await isar.quizs.where().findAll();
   print('Total quizzes in DB: ${quizzes.length}');
 }
+
+
