@@ -1,9 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../models/reminder.dart';
 import '../services/streak_service.dart';
 import '../widgets/streak_badge.dart';
 import '../widgets/streak_stats_card.dart';
 import 'add_edit_reminder_screen.dart';
+import 'lesson_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -68,7 +69,19 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Reminders'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.school),
+            tooltip: 'My Courses',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const LessonListScreen()),
+              );
+            },
+          ),
+        ],
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -148,3 +161,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+

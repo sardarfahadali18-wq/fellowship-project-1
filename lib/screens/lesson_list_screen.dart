@@ -73,7 +73,7 @@ class _LessonListScreenState extends State<LessonListScreen> {
                   ),
                   title: Text(pack.title),
                   subtitle: Text(
-                    '${pack.subject} • ${lessons.length} lessons • '
+                    '${pack.subject} â€¢ ${lessons.length} lessons â€¢ '
                     '${pack.isDownloaded ? "Available offline" : "Not downloaded"}',
                   ),
                   children: lessons.map((lesson) {
@@ -116,5 +116,3 @@ class _PackWithLessons {
 
   _PackWithLessons({required this.pack, required this.lessons});
 }
-
-
