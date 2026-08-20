@@ -3,6 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  flutter_timezone
+  isar_community_flutter_libs
   url_launcher_linux
 )
 
