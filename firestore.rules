@@ -23,7 +23,10 @@ service cloud.firestore {
 
       match /incoming_alerts/{alertId} {
         allow read: if request.auth != null && request.auth.uid == userId;
-        allow write: if request.auth != null;
+        // Only the person who raised the SOS can write into a contact's
+        // inbox — not just any signed-in user.
+        allow write: if request.auth != null &&
+          request.resource.data.fromUserId == request.auth.uid;
       }
     }
 
