@@ -1,7 +1,18 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
+import 'services/alert_messaging_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp();
+    await AlertMessagingService().registerDeviceToken();
+  } catch (_) {
+    // Firebase project config (google-services.json / GoogleService-Info.plist)
+    // isn't wired up yet in this environment. The rest of the app still
+    // works; only SOS alert sending needs it, and that fails gracefully.
+  }
   runApp(const MyApp());
 }
 
