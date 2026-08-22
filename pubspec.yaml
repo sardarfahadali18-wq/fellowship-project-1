@@ -47,6 +47,7 @@ dependencies:
   isar_community_flutter_libs: ^3.3.2
   path_provider: ^2.1.5
   archive: ^4.0.9
+  google_maps_flutter: ^2.9.0
 
 dev_dependencies:
   flutter_test:
