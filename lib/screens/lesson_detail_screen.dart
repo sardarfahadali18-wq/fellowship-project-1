@@ -5,14 +5,12 @@ import '../data/models/lesson.dart';
 import '../data/models/quiz.dart' as isar_quiz;
 import '../models/quiz_question.dart';
 import 'quiz_screen.dart';
-
 class LessonDetailScreen extends StatefulWidget {
   final int lessonId;
   const LessonDetailScreen({super.key, required this.lessonId});
   @override
   State<LessonDetailScreen> createState() => _LessonDetailScreenState();
 }
-
 class _LessonDetailScreenState extends State<LessonDetailScreen> {
   late Future<Lesson?> _lessonFuture;
   @override
@@ -20,12 +18,10 @@ class _LessonDetailScreenState extends State<LessonDetailScreen> {
     super.initState();
     _lessonFuture = _loadLesson();
   }
-
   Future<Lesson?> _loadLesson() async {
     final isar = await IsarService.getInstance();
     return isar.lessons.get(widget.lessonId);
   }
-
   Future<void> _markComplete(Lesson lesson) async {
     final isar = await IsarService.getInstance();
     await isar.writeTxn(() async {
@@ -41,7 +37,6 @@ class _LessonDetailScreenState extends State<LessonDetailScreen> {
       );
     }
   }
-
   // Converts an Isar Question.type into Faizan's QuizQuestion QuestionType.
   QuestionType _mapQuestionType(isar_quiz.QuestionType type) {
     switch (type) {
@@ -99,7 +94,6 @@ class _LessonDetailScreenState extends State<LessonDetailScreen> {
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -5,6 +5,7 @@ import 'models/lesson.dart';
 import 'models/lesson_pack.dart';
 import 'models/quiz.dart';
 import 'models/student.dart';
+import 'models/sync_event.dart';
 
 class IsarService {
   static Isar? _isar;
@@ -22,6 +23,7 @@ class IsarService {
         LessonPackSchema,
         LessonSchema,
         QuizSchema,
+        SyncEventSchema,
       ],
       directory: dir.path,
     );
