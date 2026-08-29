@@ -1,48 +1,67 @@
-﻿# Medication & Habit Reminder App
+# 🎓 Fellowship Projects — Zeppelin Labs Flutter Fellowship
 
-## 📌 Project Overview
-A Flutter application that helps patients and users stay consistent with medication schedules and healthy habits through reliable, scheduled reminders, streak tracking, and a caregiver-view for monitoring adherence.
+This repository contains two Flutter apps built during the **Zeppelin Labs Flutter Fellowship**, developed by **Team M2** (Team Lead: Sardar Fahad Ali).
 
-**Real-world problem:** Patients often miss doses or healthy habits due to a lack of reliable reminders.
+---
 
-## 🛠️ Tech Stack
-- **Frontend:** Flutter
-- **Backend/Database:** _To be decided (Firebase / Supabase / Prisma + Neon)_
-- **Version Control:** Git & GitHub
+## 📦 Project 1 — Medication & Habit Reminder App
 
-## 👥 Team Members & Roles
+A Flutter + Firebase app that helps users manage medication schedules and daily habits, with a real-time caregiver dashboard for monitoring adherence.
 
-| Name | Role | GitHub |
-|------|------|--------|
-| Sardar Fahad Ali | Team Lead | [@sardarfahadali18-wq](https://github.com/sardarfahadali18-wq) |
-| Hammas | Member | [@HammasT1](https://github.com/HammasT1) |
-| Adil Ashfaq | Member | [@AdilAshfaq001](https://github.com/AdilAshfaq001) |
-| Faizan | Member | [@fazy777](https://github.com/fazy777) |
-| Member 5 | TBD | |
+**Features**
+- 🔐 Firebase Authentication (sign up / login)
+- ⏰ Smart reminder scheduling service
+- 👨‍👩‍👧 Real-time caregiver dashboard powered by Firestore
+- 📊 Adherence tracking and history
 
-## 🚀 Setup Instructions
+**Run it:**
 ```bash
-git clone https://github.com/sardarfahadali18-wq/fellowship-project-1.git
-cd fellowship-project-1
 flutter pub get
 flutter run
 ```
 
-## 🌿 Branching Strategy
-- `main` → stable, production-ready code
-- `dev` → integration branch
-- `feature/*` → individual features
+---
 
-No direct pushes to `main`. All changes go through Pull Requests with at least one team review.
+## 🏫 Project 2 — Offline-First Rural Education App
 
-## 📸 Screenshots / Demo
-_(Add screenshots or demo video link here once available)_
+A Flutter + Isar (local NoSQL DB) app built to deliver lessons and quizzes to students in low/no-connectivity rural areas — fully functional offline.
 
-## 📋 Project Status
-🚧 In Development — Project 1 of 4 (Fellowship Program 2026)
+**Features**
+- 📴 Offline-first architecture using **Isar**
+- 📚 Lesson pack parser (zip/manifest based content delivery)
+- 📖 Markdown-rendered lesson viewer
+- ✅ Lesson completion tracking
+- 📝 Quiz engine integrated with lesson content
+- 👤 Student profile & progress tracking
 
-## 🔒 Security Note
-All API keys and secrets are stored in environment variables (`.env`) and are never committed to this repository.
+**Run it:**
+```bash
+flutter pub get
+flutter run -t lib/view_lessons.dart
+```
+*(or launch Project 1 normally and tap the school icon after login to access Project 2)*
 
-## 📄 License
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+---
+
+## 🛠️ Tech Stack
+
+`Flutter` · `Dart` · `Firebase Auth` · `Cloud Firestore` · `Isar (offline DB)` · `Markdown rendering`
+
+---
+
+## 👥 Team
+
+| Role | Member |
+|---|---|
+| Team Lead | Sardar Fahad Ali |
+| Developer | Faizan |
+| Developer | Hamza |
+| Developer | Hammas |
+| Developer | Adil |
+
+---
+
+## 📌 Status
+
+- ✅ Project 1 — Completed & submitted (scored 85/100)
+- 🚧 Project 2 — In active development (offline lesson viewer + quiz integration)

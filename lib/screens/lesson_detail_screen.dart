@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import '../data/isar_service.dart';
 import '../data/models/lesson.dart';
+import '../data/models/quiz.dart' as isar_quiz;
+import '../models/quiz_question.dart';
+import 'quiz_screen.dart';
 class LessonDetailScreen extends StatefulWidget {
   final int lessonId;
   const LessonDetailScreen({super.key, required this.lessonId});
@@ -33,6 +36,63 @@ class _LessonDetailScreenState extends State<LessonDetailScreen> {
         const SnackBar(content: Text('Lesson marked as complete!')),
       );
     }
+  }
+  // Converts an Isar Question.type into Faizan's QuizQuestion QuestionType.
+  QuestionType _mapQuestionType(isar_quiz.QuestionType type) {
+    switch (type) {
+      case isar_quiz.QuestionType.mcq:
+        return QuestionType.mcq;
+      case isar_quiz.QuestionType.trueFalse:
+        return QuestionType.trueFalse;
+      case isar_quiz.QuestionType.fillBlank:
+        return QuestionType.fillInBlank;
+    }
+  }
+
+  // Converts the Isar Quiz/Question model into the List<QuizQuestion>
+  // format that Faizan's QuizScreen expects.
+  List<QuizQuestion> _convertQuestions(isar_quiz.Quiz quiz) {
+    final List<QuizQuestion> result = [];
+    for (var i = 0; i < quiz.questions.length; i++) {
+      final q = quiz.questions[i];
+      result.add(
+        QuizQuestion(
+          id: '${quiz.id}_$i',
+          questionText: q.text ?? 'Question text unavailable',
+          type: _mapQuestionType(q.type),
+          correctAnswer: q.correctAnswer ?? '',
+          options: q.options,
+        ),
+      );
+    }
+    return result;
+  }
+
+  Future<void> _openQuiz(Lesson lesson) async {
+    if (lesson.quizId == null) return;
+    final isar = await IsarService.getInstance();
+    final quiz = await isar.quizs.get(lesson.quizId!);
+
+    if (quiz == null || quiz.questions.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No quiz available for this lesson yet.')),
+        );
+      }
+      return;
+    }
+
+    if (!mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => QuizScreen(
+          lessonId: lesson.id.toString(),
+          quizId: quiz.id.toString(),
+          quizTitle: '${lesson.title} Quiz',
+          questions: _convertQuestions(quiz),
+        ),
+      ),
+    );
   }
   @override
   Widget build(BuildContext context) {
@@ -81,15 +141,7 @@ class _LessonDetailScreenState extends State<LessonDetailScreen> {
                     child: FilledButton.icon(
                       icon: const Icon(Icons.quiz),
                       label: const Text('Take Quiz'),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Quiz engine coming soon (built by Faizan).',
-                            ),
-                          ),
-                        );
-                      },
+                      onPressed: () => _openQuiz(lesson),
                     ),
                   ),
                 ),
@@ -100,4 +152,3 @@ class _LessonDetailScreenState extends State<LessonDetailScreen> {
     );
   }
 }
-
