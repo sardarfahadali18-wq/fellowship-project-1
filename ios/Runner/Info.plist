@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SafeWalk needs your location to include it in the SOS alert sent to your trusted contacts.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>SafeWalk uses the flashlight as part of the SOS alert to help others find you.</string>
 </dict>
 </plist>

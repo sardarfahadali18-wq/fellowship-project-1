@@ -1,4 +1,5 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -15,6 +16,18 @@ service cloud.firestore {
       allow write: if request.auth != null &&
         (request.auth.uid == userId ||
          request.resource.data.linkedCaregiverId == request.auth.uid);
+
+      match /trusted_contacts/{contactId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /incoming_alerts/{alertId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        // Only the person who raised the SOS can write into a contact's
+        // inbox — not just any signed-in user.
+        allow write: if request.auth != null &&
+          request.resource.data.fromUserId == request.auth.uid;
+      }
     }
 
     // invites/{code} — only the creating patient can create their own invite.
@@ -34,6 +47,13 @@ service cloud.firestore {
         request.resource.data.caregiverId == request.auth.uid;
 
       allow delete: if false;
+    }
+
+    match /sos_alerts/{alertId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read, update: if request.auth != null &&
+        (resource.data.userId == request.auth.uid ||
+         request.auth.uid in resource.data.notifiedContactIds);
     }
   }
 }

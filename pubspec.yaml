@@ -38,15 +38,24 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   timezone: ^0.9.4
   flutter_timezone: ^4.1.1
-  firebase_core: ^4.12.1
-  firebase_auth: ^6.5.6
-  cloud_firestore: ^6.7.1
+  firebase_core: ^4.13.0
+  firebase_auth: ^6.5.7
+  cloud_firestore: ^6.8.0
   flutter_markdown_plus: ^1.0.3
 
   isar_community: ^3.3.2
   isar_community_flutter_libs: ^3.3.2
   path_provider: ^2.1.5
   archive: ^4.0.9
+
+  # --- SOS + Alerts module ---
+  firebase_messaging: ^16.5.0
+  geolocator: ^14.0.3
+  torch_light: ^2.0.0
+  vibration: ^3.2.0
+  connectivity_plus: ^7.3.1
+  url_launcher: ^6.3.2
+  flutter_ringtone_player: ^4.0.0+4
 
 dev_dependencies:
   flutter_test:

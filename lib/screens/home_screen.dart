@@ -4,7 +4,9 @@ import '../services/streak_service.dart';
 import '../widgets/streak_badge.dart';
 import '../widgets/streak_stats_card.dart';
 import 'add_edit_reminder_screen.dart';
+import 'incoming_alerts_screen.dart';
 import 'lesson_list_screen.dart';
+import 'sos_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -79,9 +81,26 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.notifications_active_outlined),
+            tooltip: 'Alerts',
+            onPressed:
+                () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const IncomingAlertsScreen(),
+                  ),
+                ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.sos),
+            tooltip: 'SOS',
+            onPressed:
+                () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const SosScreen())),
+          ),
         ],
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -161,4 +180,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
