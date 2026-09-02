@@ -5,10 +5,12 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   cloud_firestore
   connectivity_plus
+  file_selector_windows
   firebase_auth
   firebase_core
   flutter_timezone
   isar_community_flutter_libs
+  speech_to_text_windows
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
