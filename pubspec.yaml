@@ -56,6 +56,11 @@ dependencies:
   http: ^1.2.2
   uuid: ^4.5.1
 
+  # --- KhataBook Lite: Core Ledger module (Hammas) ---
+  image_picker: ^1.1.2
+  flutter_contacts: ^1.1.9+2
+  speech_to_text: ^7.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

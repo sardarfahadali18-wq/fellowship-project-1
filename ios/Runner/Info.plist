@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>KhataBook Lite uses the microphone to let you dictate transaction notes.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>KhataBook Lite uses speech recognition to turn your dictated transaction notes into text.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>KhataBook Lite needs photo library access so you can attach a photo to a customer or transaction.</string>
 </dict>
 </plist>
