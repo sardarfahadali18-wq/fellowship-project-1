@@ -29,10 +29,10 @@ class KhataCustomer {
   late DateTime createdAt;
 
   KhataCustomerData toData() => KhataCustomerData(
-        id: id,
-        name: name,
-        phone: phone,
-        photoPath: photoPath,
-        createdAt: createdAt,
-      );
+    id: id,
+    name: name,
+    phone: phone,
+    photoPath: photoPath,
+    createdAt: createdAt,
+  );
 }

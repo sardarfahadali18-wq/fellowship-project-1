@@ -23,12 +23,13 @@ class KhataLedgerRepository implements LedgerRepository {
     String? photoPath,
   }) async {
     final isar = await _isar;
-    final customer = KhataCustomer()
-      ..uuid = _uuid.v4()
-      ..name = name
-      ..phone = phone
-      ..photoPath = photoPath
-      ..createdAt = DateTime.now();
+    final customer =
+        KhataCustomer()
+          ..uuid = _uuid.v4()
+          ..name = name
+          ..phone = phone
+          ..photoPath = photoPath
+          ..createdAt = DateTime.now();
     await isar.writeTxn(() async {
       await isar.khataCustomers.put(customer);
     });
@@ -51,14 +52,15 @@ class KhataLedgerRepository implements LedgerRepository {
     String? photoPath,
   }) async {
     final isar = await _isar;
-    final txn = KhataTransaction()
-      ..uuid = _uuid.v4()
-      ..customerId = customerId
-      ..type = type
-      ..amount = amount
-      ..note = note
-      ..photoPath = photoPath
-      ..createdAt = DateTime.now();
+    final txn =
+        KhataTransaction()
+          ..uuid = _uuid.v4()
+          ..customerId = customerId
+          ..type = type
+          ..amount = amount
+          ..note = note
+          ..photoPath = photoPath
+          ..createdAt = DateTime.now();
     await isar.writeTxn(() async {
       await isar.khataTransactions.put(txn);
     });
@@ -66,13 +68,16 @@ class KhataLedgerRepository implements LedgerRepository {
   }
 
   @override
-  Future<List<KhataTransactionData>> transactionsForCustomer(int customerId) async {
+  Future<List<KhataTransactionData>> transactionsForCustomer(
+    int customerId,
+  ) async {
     final isar = await _isar;
-    final transactions = await isar.khataTransactions
-        .filter()
-        .customerIdEqualTo(customerId)
-        .sortByCreatedAtDesc()
-        .findAll();
+    final transactions =
+        await isar.khataTransactions
+            .filter()
+            .customerIdEqualTo(customerId)
+            .sortByCreatedAtDesc()
+            .findAll();
     return transactions.map((t) => t.toData()).toList();
   }
 

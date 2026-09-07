@@ -45,9 +45,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not open contacts: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not open contacts: $e')));
     }
   }
 
@@ -58,9 +58,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
       setState(() => _photoPath = picked.path);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not open gallery: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not open gallery: $e')));
     }
   }
 
@@ -70,9 +70,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     try {
       final customer = await widget.repository.addCustomer(
         name: _nameController.text.trim(),
-        phone: _phoneController.text.trim().isEmpty
-            ? null
-            : _phoneController.text.trim(),
+        phone:
+            _phoneController.text.trim().isEmpty
+                ? null
+                : _phoneController.text.trim(),
         photoPath: _photoPath,
       );
       if (!mounted) return;
@@ -129,8 +130,11 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
               ),
               textCapitalization: TextCapitalization.words,
               onChanged: (_) => setState(() {}),
-              validator: (value) =>
-                  (value == null || value.trim().isEmpty) ? 'Name is required' : null,
+              validator:
+                  (value) =>
+                      (value == null || value.trim().isEmpty)
+                          ? 'Name is required'
+                          : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -151,16 +155,17 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: _isSaving ? null : _save,
-              icon: _isSaving
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colorScheme.onPrimary,
-                      ),
-                    )
-                  : const Icon(Icons.check),
+              icon:
+                  _isSaving
+                      ? SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.onPrimary,
+                        ),
+                      )
+                      : const Icon(Icons.check),
               label: const Text('Save Customer'),
             ),
           ],
