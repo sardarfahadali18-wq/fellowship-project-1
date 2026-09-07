@@ -1,4 +1,4 @@
-package com.example.fellowship_project_1
+package com.safe_walk.fellowship_project_3
 
 import io.flutter.embedding.android.FlutterActivity
 

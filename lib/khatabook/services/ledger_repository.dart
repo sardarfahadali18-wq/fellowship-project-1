@@ -37,3 +37,30 @@ double computeKhataBalance(List<KhataTransactionData> transactions) {
   }
   return balance;
 }
+
+const overdueDays = 30;
+
+DateTime? oldestGaveTransactionDate(List<KhataTransactionData> transactions) {
+  DateTime? oldest;
+  for (final transaction in transactions) {
+    if (transaction.type != KhataTxnType.gave) continue;
+    if (oldest == null || transaction.createdAt.isBefore(oldest)) {
+      oldest = transaction.createdAt;
+    }
+  }
+  return oldest;
+}
+
+bool isKhataCustomerOverdue(
+  List<KhataTransactionData> transactions, {
+  int thresholdDays = overdueDays,
+  DateTime? now,
+}) {
+  if (computeKhataBalance(transactions) <= 0) return false;
+  final oldestCredit = oldestGaveTransactionDate(transactions);
+  if (oldestCredit == null) return false;
+  final referenceDate = now ?? DateTime.now();
+  return !oldestCredit
+      .add(Duration(days: thresholdDays))
+      .isAfter(referenceDate);
+}

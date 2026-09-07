@@ -10,7 +10,9 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_core
   flutter_timezone
   isar_community_flutter_libs
+  share_plus
   speech_to_text_windows
+  url_launcher_windows
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

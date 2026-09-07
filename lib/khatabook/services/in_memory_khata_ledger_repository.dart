@@ -61,9 +61,12 @@ class InMemoryKhataLedgerRepository implements LedgerRepository {
   }
 
   @override
-  Future<List<KhataTransactionData>> transactionsForCustomer(int customerId) async {
-    final matches = _transactions.where((t) => t.customerId == customerId).toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  Future<List<KhataTransactionData>> transactionsForCustomer(
+    int customerId,
+  ) async {
+    final matches =
+        _transactions.where((t) => t.customerId == customerId).toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return matches;
   }
 

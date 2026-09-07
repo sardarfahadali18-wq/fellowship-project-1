@@ -4,6 +4,9 @@ import '../models/khata_customer_data.dart';
 import '../models/khata_transaction_data.dart';
 import '../models/khata_txn_type.dart';
 import '../services/ledger_repository.dart';
+import '../services/khata_ledger_pdf_service.dart';
+import '../services/sms_reminder_service.dart';
+import '../services/whatsapp_reminder_service.dart';
 import '../widgets/khata_customer_avatar.dart';
 import 'record_transaction_screen.dart';
 
@@ -20,7 +23,8 @@ class KhataCustomerLedgerScreen extends StatefulWidget {
   final LedgerRepository repository;
 
   @override
-  State<KhataCustomerLedgerScreen> createState() => _KhataCustomerLedgerScreenState();
+  State<KhataCustomerLedgerScreen> createState() =>
+      _KhataCustomerLedgerScreenState();
 }
 
 class _KhataCustomerLedgerScreenState extends State<KhataCustomerLedgerScreen> {
@@ -33,12 +37,106 @@ class _KhataCustomerLedgerScreenState extends State<KhataCustomerLedgerScreen> {
   }
 
   void _load() {
-    _transactionsFuture = widget.repository.transactionsForCustomer(widget.customer.id);
+    _transactionsFuture = widget.repository.transactionsForCustomer(
+      widget.customer.id,
+    );
   }
 
   String _formatAmount(double amount) {
     final rounded = amount.toStringAsFixed(amount % 1 == 0 ? 0 : 2);
     return 'Rs $rounded';
+  }
+
+  Future<void> _remindOnWhatsApp(double balance) async {
+    if (balance <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No pending amount to remind about.')),
+      );
+      return;
+    }
+    if (WhatsAppReminderService.normalizePhone(widget.customer.phone) == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Add a valid phone number for this customer first.'),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final opened = await WhatsAppReminderService.launch(
+        customerName: widget.customer.name,
+        phone: widget.customer.phone,
+        balance: balance,
+      );
+      if (!mounted || opened) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open WhatsApp on this device.'),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open WhatsApp on this device.'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _shareLedger(List<KhataTransactionData> transactions) async {
+    try {
+      await KhataLedgerPdfService.generateAndShare(
+        customer: widget.customer,
+        transactions: transactions,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not generate or share the ledger.'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _remindBySms(double balance) async {
+    if (balance <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No pending amount to remind about.')),
+      );
+      return;
+    }
+    if (WhatsAppReminderService.normalizePhone(widget.customer.phone) == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Add a valid phone number for this customer first.'),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final opened = await SmsReminderService.launch(
+        customerName: widget.customer.name,
+        phone: widget.customer.phone,
+        balance: balance,
+      );
+      if (!mounted || opened) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open the SMS app on this device.'),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open the SMS app on this device.'),
+        ),
+      );
+    }
   }
 
   @override
@@ -81,59 +179,95 @@ class _KhataCustomerLedgerScreenState extends State<KhataCustomerLedgerScreen> {
                       radius: 32,
                     ),
                     const SizedBox(height: 12),
-                    Text(balanceLabel, style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      balanceLabel,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     Text(
                       _formatAmount(balance.abs()),
                       style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                            color: balanceColor,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        color: balanceColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     if (widget.customer.phone != null)
                       Text(
                         widget.customer.phone!,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: () => _remindOnWhatsApp(balance),
+                      icon: const Icon(Icons.chat_outlined),
+                      label: const Text('Remind on WhatsApp'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: () => _remindBySms(balance),
+                      icon: const Icon(Icons.sms_outlined),
+                      label: const Text('Remind by SMS'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: () => _shareLedger(transactions),
+                      icon: const Icon(Icons.picture_as_pdf_outlined),
+                      label: const Text('Export as PDF'),
+                    ),
                   ],
                 ),
               ),
               Expanded(
-                child: transactions.isEmpty
-                    ? const Center(child: Text('No transactions yet'))
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        itemCount: transactions.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final txn = transactions[index];
-                          final isGave = txn.type == KhataTxnType.gave;
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: isGave
-                                  ? colorScheme.errorContainer
-                                  : Colors.green.shade100,
-                              child: Icon(
-                                isGave ? Icons.arrow_upward : Icons.arrow_downward,
-                                color: isGave ? colorScheme.onErrorContainer : Colors.green.shade800,
+                child:
+                    transactions.isEmpty
+                        ? const Center(child: Text('No transactions yet'))
+                        : ListView.separated(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          itemCount: transactions.length,
+                          separatorBuilder: (_, __) => const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            final txn = transactions[index];
+                            final isGave = txn.type == KhataTxnType.gave;
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor:
+                                    isGave
+                                        ? colorScheme.errorContainer
+                                        : Colors.green.shade100,
+                                child: Icon(
+                                  isGave
+                                      ? Icons.arrow_upward
+                                      : Icons.arrow_downward,
+                                  color:
+                                      isGave
+                                          ? colorScheme.onErrorContainer
+                                          : Colors.green.shade800,
+                                ),
                               ),
-                            ),
-                            title: Text(isGave ? 'Gave (Credit)' : 'Got (Payment)'),
-                            subtitle: Text(
-                              [
-                                if (txn.note != null && txn.note!.isNotEmpty) txn.note!,
-                                '${txn.createdAt.day}/${txn.createdAt.month}/${txn.createdAt.year}',
-                              ].join(' · '),
-                            ),
-                            trailing: Text(
-                              _formatAmount(txn.amount),
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: isGave ? colorScheme.error : Colors.green.shade700,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                          );
-                        },
-                      ),
+                              title: Text(
+                                isGave ? 'Gave (Credit)' : 'Got (Payment)',
+                              ),
+                              subtitle: Text(
+                                [
+                                  if (txn.note != null && txn.note!.isNotEmpty)
+                                    txn.note!,
+                                  '${txn.createdAt.day}/${txn.createdAt.month}/${txn.createdAt.year}',
+                                ].join(' · '),
+                              ),
+                              trailing: Text(
+                                _formatAmount(txn.amount),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleMedium?.copyWith(
+                                  color:
+                                      isGave
+                                          ? colorScheme.error
+                                          : Colors.green.shade700,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
               ),
             ],
           );
@@ -143,10 +277,11 @@ class _KhataCustomerLedgerScreenState extends State<KhataCustomerLedgerScreen> {
         onPressed: () async {
           final saved = await Navigator.of(context).push<bool>(
             MaterialPageRoute(
-              builder: (_) => RecordTransactionScreen(
-                customer: widget.customer,
-                repository: widget.repository,
-              ),
+              builder:
+                  (_) => RecordTransactionScreen(
+                    customer: widget.customer,
+                    repository: widget.repository,
+                  ),
             ),
           );
           if (saved == true) {
