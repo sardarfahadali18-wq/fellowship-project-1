@@ -14,3 +14,8 @@ firebase.json
 .flutter-plugins
 .flutter-plugins-dependencies
 test/goldens/
+
+# Native Isar library pulled in by Isar.initializeIsarCore during tests
+libisar.dll
+libisar.so
+libisar.dylib

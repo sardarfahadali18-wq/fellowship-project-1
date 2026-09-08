@@ -32,6 +32,46 @@ service cloud.firestore {
       }
     }
 
+    // KhataBook Lite ledger backup: private to the signed-in vendor.
+    // Never publicly readable, since it holds customer names, phone numbers
+    // and debt amounts.
+    match /vendors/{vendorId} {
+      function owner() {
+        return request.auth != null && request.auth.uid == vendorId;
+      }
+      function textOk(value, max) {
+        return value == null || (value is string && value.size() <= max);
+      }
+
+      allow read, write: if false;
+
+      match /customers/{customerId} {
+        allow read, delete: if owner();
+        allow create, update: if owner() &&
+          request.resource.data.name is string &&
+          request.resource.data.name.size() > 0 &&
+          request.resource.data.name.size() <= 120 &&
+          textOk(request.resource.data.get('phone', null), 24) &&
+          request.resource.data.keys().hasOnly(
+            ['name', 'phone', 'createdAt', 'updatedAt']
+          );
+      }
+
+      match /transactions/{transactionId} {
+        allow read, delete: if owner();
+        allow create, update: if owner() &&
+          request.resource.data.customerUuid is string &&
+          request.resource.data.type in ['gave', 'got'] &&
+          request.resource.data.amount is number &&
+          request.resource.data.amount >= 0 &&
+          request.resource.data.amount <= 1000000000 &&
+          textOk(request.resource.data.get('note', null), 500) &&
+          request.resource.data.keys().hasOnly(
+            ['customerUuid', 'type', 'amount', 'note', 'createdAt', 'updatedAt']
+          );
+      }
+    }
+
     // Invites collection (Legacy compatibility)
     match /invites/{code} {
       allow create: if request.auth != null &&

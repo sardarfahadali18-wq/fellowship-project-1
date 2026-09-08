@@ -1,3 +1,5 @@
 tags:
+  isar:
+    skip: "Needs the native Isar library (downloaded on first run). Run manually: flutter test --tags isar --run-skipped test/khatabook/khata_sync_store_isar_test.dart"
   golden:
     skip: "Golden tests compare raster output and are tied to one machine and Flutter version. Run manually: flutter test --tags golden --run-skipped --update-goldens test/walk_golden_test.dart"
