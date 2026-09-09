@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/khata_customer_data.dart';
 import '../services/ledger_repository.dart';
 import '../widgets/khata_customer_avatar.dart';
+import '../widgets/language_picker_sheet.dart';
 import 'add_customer_screen.dart';
 import 'khata_customer_ledger_screen.dart';
 
@@ -33,7 +34,16 @@ class _KhataCustomersScreenState extends State<KhataCustomersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('KhataBook Lite')),
+      appBar: AppBar(
+        title: const Text('KhataBook Lite'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            tooltip: 'Language / زبان',
+            onPressed: () => LanguagePickerSheet.show(context),
+          ),
+        ],
+      ),
       body: FutureBuilder<List<KhataCustomerData>>(
         future: _customersFuture,
         builder: (context, snapshot) {
