@@ -3,6 +3,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../models/khata_customer.dart';
 import '../models/khata_transaction.dart';
+import '../sync/khata_sync_op.dart';
 
 /// Standalone Isar instance for the KhataBook Lite ledger module.
 ///
@@ -17,7 +18,7 @@ class KhataBookIsarService {
     }
     final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
-      [KhataCustomerSchema, KhataTransactionSchema],
+      [KhataCustomerSchema, KhataTransactionSchema, KhataSyncOpRowSchema],
       directory: dir.path,
       name: 'khatabook',
     );
