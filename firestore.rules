@@ -1,40 +1,30 @@
-rules_version = '2';
+﻿rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Users collection: Each authenticated user can read/write their own profile
     match /users/{userId} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && request.auth.uid == userId;
       allow write: if request.auth != null && request.auth.uid == userId;
 
-      // Subcollection: Trusted Contacts
-      // Only the user who owns this profile can read, create, update, or delete their trusted contacts
       match /trusted_contacts/{contactId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
 
-    // Walk Sessions collection: Used by Walk-With-Me live tracking
     match /walk_sessions/{sessionId} {
-      // Allow reading walk sessions (needed for shareable web links & contacts)
-      allow read: if true;
-      // Allow creation and updates if authenticated user matches ownerUid
+      allow read: if request.auth != null;
       allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid;
       allow update, delete: if request.auth != null && (
         resource.data.ownerUid == request.auth.uid || 
         request.resource.data.ownerUid == request.auth.uid
       );
 
-      // Subcollection: GPS Points
       match /points/{pointId} {
-        allow read: if true;
+        allow read: if request.auth != null;
         allow write: if request.auth != null;
       }
     }
 
-    // KhataBook Lite ledger backup: private to the signed-in vendor.
-    // Never publicly readable, since it holds customer names, phone numbers
-    // and debt amounts.
     match /vendors/{vendorId} {
       function owner() {
         return request.auth != null && request.auth.uid == vendorId;
@@ -72,7 +62,6 @@ service cloud.firestore {
       }
     }
 
-    // Invites collection (Legacy compatibility)
     match /invites/{code} {
       allow create: if request.auth != null &&
         request.resource.data.patientId == request.auth.uid &&

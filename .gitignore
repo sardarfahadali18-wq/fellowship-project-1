@@ -19,3 +19,4 @@ test/goldens/
 libisar.dll
 libisar.so
 libisar.dylib
+secrets.json
